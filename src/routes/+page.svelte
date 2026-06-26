@@ -1,9 +1,20 @@
 <script>
 	import { onMount } from 'svelte';
 	import { db } from '$lib/firebase';
+
+	import { cart } from '$lib/cart';
+
+
+
 import { collection, getDocs } from 'firebase/firestore';
 
 let products = [];
+
+let search = "";
+
+$: filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(search.toLowerCase())
+);
 
 	const heroImages = [
 		"https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-1.jpg",
@@ -31,579 +42,644 @@ let products = [];
 });
 </script>
 
-<!-- HERO SECTION -->
-<section class="hero d-flex align-items-center text-white">
+<!-- HERO -->
+<section class="hero">
 
 	<div class="container">
-		<div class="row align-items-center">
 
-			<!-- LEFT TEXT -->
-			<div class="col-lg-6">
+		<div class="row align-items-center gy-5">
 
-				<h1 class="display-3 fw-bold">
-					Next Gen Gadgets Store
+			<!-- LEFT -->
+			<div class="col-lg-6 order-2 order-lg-1">
+
+				<span class="hero-badge">
+					🔥 India's Trusted Gadget Store
+				</span>
+
+				<h1 class="hero-title mt-3">
+					Discover The Latest
+					<span>Smartphones & Gadgets</span>
 				</h1>
 
-				<p class="lead mt-3">
-					Premium smartphones, laptops & accessories at best prices.
+				<p class="hero-text mt-4">
+					Buy premium mobiles, laptops, smart watches and accessories
+					at unbeatable prices with fast delivery.
 				</p>
 
-				<div class="mt-4">
-					<a href="/products" class="btn btn-primary btn-lg me-2">
+				<!-- SEARCH -->
+
+				<div class="search-box mt-4">
+
+					<input
+						type="text"
+						bind:value={search}
+						placeholder="Search iPhone, Samsung, Laptop..."
+					>
+
+					<a href="/products" class="search-btn">
+						Search
+					</a>
+
+				</div>
+
+				<div class="hero-buttons mt-4">
+
+					<a href="/products" class="btn btn-primary btn-lg">
 						Shop Now
 					</a>
 
-					<a href="/products/iphone15" class="btn btn-primary btn-lg me-2">
-	View Featured Product
-</a>
+					<a
+						href="/products/iphone15"
+						class="btn btn-outline-light btn-lg"
+					>
+						View Product
+					</a>
+
 				</div>
 
-				<!-- SEARCH BOX -->
-				<input
-					class="form-control mt-4 w-75"
-					placeholder="Search products..."
-				/>
+			</div>
+
+			<!-- RIGHT -->
+
+			<div class="col-lg-6 order-1 order-lg-2 text-center">
+
+				<div class="hero-image-box">
+
+					<img
+						src={heroImages[current]}
+						alt="Hero Product"
+						class="hero-img"
+					>
+
+				</div>
 
 			</div>
 
-			<!-- RIGHT IMAGE -->
-			<div class="col-lg-6 text-center mt-4 mt-lg-0">
-
-				<img
-					src={heroImages[current]}
-					alt="hero"
-					class="hero-img"
-				/>
-
-			</div>
-
-		</div>
-	</div>
-
-</section>
-<section class="container py-5 text-white">
-	<h2 class="text-center mb-4">Shop By Category</h2>
-
-	<div class="row text-center g-4">
-
-		<div class="col-md-3">
-			<div class="cat-card">📱 Mobiles</div>
-		</div>
-
-		<div class="col-md-3">
-			<div class="cat-card">💻 Laptops</div>
-		</div>
-
-		<div class="col-md-3">
-			<div class="cat-card">🎧 Accessories</div>
-		</div>
-
-		<div class="col-md-3">
-			<div class="cat-card">⌚ Smartwatch</div>
 		</div>
 
 	</div>
-</section>
-<div class="container my-4">
-	<div class="offer-banner text-center text-white">
-		⚡ Limited Time Offer – Up to 30% OFF on Smartphones ⚡
-	</div>
-</div>
-<section class="container py-5 text-center text-white">
-	<h2 class="mb-4">Top Brands</h2>
 
-	<div class="row g-4">
-
-		<div class="col-md-3 brand">Apple</div>
-		<div class="col-md-3 brand">Samsung</div>
-		<div class="col-md-3 brand">OnePlus</div>
-		<div class="col-md-3 brand">Xiaomi</div>
-
-	</div>
 </section>
 <section class="container py-5">
-	<h2 class="text-center fw-bold mb-5 text-white">
-		Featured Products
-	</h2>
 
-	<div class="row g-4">
+	<div class="d-flex justify-content-between align-items-center mb-4">
+		<h2 class="fw-bold text-white">Shop By Category</h2>
+		<a href="/products" class="text-info text-decoration-none">
+			View All →
+		</a>
+	</div>
+
+	<div class="category-grid">
+
+		<a href="/products" class="category-card">
+			<div class="category-icon">📱</div>
+			<h5>Mobiles</h5>
+			<p>Latest Smartphones</p>
+		</a>
+
+		<a href="/products" class="category-card">
+			<div class="category-icon">💻</div>
+			<h5>Laptops</h5>
+			<p>Gaming & Business</p>
+		</a>
+
+		<a href="/products" class="category-card">
+			<div class="category-icon">🎧</div>
+			<h5>Accessories</h5>
+			<p>Premium Gadgets</p>
+		</a>
+
+		<a href="/products" class="category-card">
+			<div class="category-icon">⌚</div>
+			<h5>Smart Watches</h5>
+			<p>Fitness & Style</p>
+		</a>
+
+	</div>
+
+</section>
+<section class="container py-5">
+
+	<div class="d-flex justify-content-between align-items-center mb-4">
+
+		<h2 class="text-white fw-bold">
+			Featured Products
+		</h2>
+
+		<a href="/products" class="text-info text-decoration-none">
+			View All →
+		</a>
+
+	</div>
+
+	<div class="products-slider">
 
 		{#each products as product}
-			<div class="col-md-4">
-				<div class="card product-card">
+
+			<div class="product-item">
+
+				<div class="card product-card h-100">
 
 					<img
 						src={product.imageUrl}
 						alt={product.name}
 					/>
 
-					<div class="card-body text-center">
-	<h5>{product.name}</h5>
-	<p>₹{product.price}</p>
+					<div class="card-body">
 
-	<div class="d-grid gap-2">
-		<button class="btn buy-btn">
-			Add to Cart
-		</button>
+						<h5>{product.name}</h5>
 
-		<a href="/products" class="btn btn-light btn-lg">
-	View Products
-</a>
-	</div>
-</div>
+						<p class="price">
+							₹{product.price}
+						</p>
+
+						<div class="d-grid gap-2">
+
+							
+<button class="btn buy-btn" on:click={() => cart.add(product)}>
+	Add to Cart
+</button>
+
+							<a
+								href={`/products/${product.id}`}
+								class="btn btn-outline-primary"
+							>
+								View Details
+							</a>
+
+						</div>
+
+					</div>
+
 				</div>
+
 			</div>
+
 		{/each}
 
 	</div>
+
 </section>
-
-
-		<!-- SMART WATCHES -->
-
 <section class="container py-5">
-	<h2 class="text-center fw-bold mb-5 text-white">
-		Smart Watches
-	</h2>
 
-	<div class="row g-4 justify-content-center">
+	<h2 class="section-title">Why Shop With Us</h2>
 
-		<!-- WATCH 1 -->
-		<div class="col-md-4">
-			<div class="card product-card">
-				<img
-					src="https://fdn2.gsmarena.com/vv/pics/apple/apple-watch-series9-1.jpg"
-					alt="Apple Watch"
-				/>
+	<div class="trust-grid">
 
-				<div class="card-body text-center">
-					<h5>Apple Watch Series 9</h5>
-					<p>₹24,000</p>
-
-					
-				</div>
-			</div>
-		</div>
-
-		<!-- WATCH 2 -->
-		<div class="col-md-4">
-			<div class="card product-card">
-				<img
-					src="https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-watch7-1.jpg"
-					alt="Samsung Watch"
-				/>
-
-				<div class="card-body text-center">
-					<h5>Samsung Galaxy Watch 7</h5>
-					<p>₹29,999</p>
-
-					
-				</div>
-			</div>
-		</div>
+		<div class="trust-card">🚚 <span>Free Shipping</span></div>
+		<div class="trust-card">💳 <span>Secure Payment</span></div>
+		<div class="trust-card">🔄 <span>Easy Returns</span></div>
+		<div class="trust-card">📞 <span>24/7 Support</span></div>
 
 	</div>
+
 </section>
+<section class="container py-5">
 
+	<div class="d-flex justify-content-between align-items-center mb-4">
 
+		<h2 class="fw-bold text-white">
+			Top Brands
+		</h2>
+
+		<a href="/products" class="text-info text-decoration-none">
+			View All →
+		</a>
+
+	</div>
+
+	<div class="brand-grid">
+
+		<a href="/products" class="brand-card">🍎 Apple</a>
+
+		<a href="/products" class="brand-card">📱 Samsung</a>
+
+		<a href="/products" class="brand-card">⚡ OnePlus</a>
+
+		<a href="/products" class="brand-card">🔶 Xiaomi</a>
+
+		<a href="/products" class="brand-card">💚 OPPO</a>
+
+		<a href="/products" class="brand-card">🔵 Vivo</a>
+
+		<a href="/products" class="brand-card">⭐ Realme</a>
+
+		<a href="/products" class="brand-card">⚪ Nothing</a>
 
 		
 
+	</div>
+
+</section>
 <section class="container py-5">
-	<div class="row g-4">
 
-		<div class="col-md-3">
-			<div class="stats-box">
-				<h1>10K+</h1>
-				<p>😊 Happy Customers</p>
-			</div>
-		</div>
+	<h2 class="section-title">Shop Collections</h2>
 
-		<div class="col-md-3">
-			<div class="stats-box">
-				<h1>500+</h1>
-				<p>📱 Products</p>
-			</div>
-		</div>
+	<div class="category-grid">
 
-		<div class="col-md-3">
-			<div class="stats-box">
-				<h1>4.9★</h1>
-				<p>⭐ Rating</p>
-			</div>
-		</div>
+		<a href="/products" class="category-card">
+			<div class="cat-icon">📱</div>
+			<h5>Mobile Covers</h5>
+		</a>
 
-		<div class="col-md-3">
-			<div class="stats-box">
-				<h1>24/7</h1>
-				<p>🎧 Support</p>
-			</div>
-		</div>
+		<a href="/products" class="category-card">
+			<div class="cat-icon">🖼</div>
+			<h5>Wall Art</h5>
+		</a>
 
-	</div>
-</section>
-<!-- FEATURES -->
-<section class="py-5 text-black text-center">
+		<a href="/products" class="category-card">
+			<div class="cat-icon">🏡</div>
+			<h5>Home Decor</h5>
+		</a>
 
-	<div class="container">
-
-		<div class="row g-4">
-
-			<div class="col-md-4">
-				<div class="feature">
-					🚚 Fast Delivery
-				</div>
-			</div>
-
-			<div class="col-md-4">
-				<div class="feature">
-					🛡️ Warranty
-				</div>
-			</div>
-
-			<div class="col-md-4">
-				<div class="feature">
-					💳 Secure Payment
-				</div>
-			</div>
-
-		</div>
+		<a href="/products" class="category-card">
+			<div class="cat-icon">🎁</div>
+			<h5>Gifts</h5>
+		</a>
 
 	</div>
 
 </section>
-
-<section class="container py-5 text-white">
-	<h2 class="text-center mb-5">Customer Reviews</h2>
-
-	<div class="row g-4">
-
-		<div class="col-md-4">
-			<div class="stats-box">
-				⭐⭐⭐⭐⭐
-				<p class="mt-3">Best smartphone store. Fast delivery.</p>
-				<h6>- Rahul</h6>
-			</div>
-		</div>
-
-		<div class="col-md-4">
-			<div class="stats-box">
-				⭐⭐⭐⭐⭐
-				<p class="mt-3">Original products and good support.</p>
-				<h6>- Priya</h6>
-			</div>
-		</div>
-
-		<div class="col-md-4">
-			<div class="stats-box">
-				⭐⭐⭐⭐⭐
-				<p class="mt-3">Amazing deals on latest phones.</p>
-				<h6>- Jay</h6>
-			</div>
-		</div>
-
-	</div>
-</section>
-
 
 <style>
 :global(body) {
-	margin:0;
-	padding:0;
-	min-height:100vh;
+	margin: 0;
+	padding: 0;
+	min-height: 100vh;
 
 	background:
-		radial-gradient(circle at top left,#2563eb,transparent 40%),
-		radial-gradient(circle at bottom right,#7c3aed,transparent 40%),
-		linear-gradient(135deg,#0f172a,#020617);
+		radial-gradient(circle at top left, #2563eb, transparent 40%),
+		radial-gradient(circle at bottom right, #7c3aed, transparent 40%),
+		linear-gradient(135deg, #0f172a, #020617);
 
 	background-attachment: fixed;
-	color:white;
-}
-.hero{
-	min-height:100vh;
-	
-}
-.product-card{
-	border: none;
-	border-radius: 20px;
-	overflow: hidden;
-	box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-	transition: all 0.3s ease;
-	background: #ffffff;
-
-}
-
-.product-card:hover{
-	transform: translateY(-10px);
-	box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-}
-
-.product-card img{
-	height: 220px;
-	width: 100%;
-	object-fit: contain;
-	padding: 15px;
-	background: #f8fafc;
-	transition: 0.3s;
-}
-
-.product-card:hover img{
-	transform: scale(1.05);
-}
-
-.product-card h5{
-	font-weight: 700;
-	margin-top: 10px;
-	color: #0f172a;
-}
-
-.product-card p{
-	color: #2563eb;
-	font-weight: 600;
-	font-size: 16px;
-}
-
-/* BUY BUTTON */
-.buy-btn{
-	background: linear-gradient(135deg, #2563eb, #1d4ed8);
 	color: white;
-	font-weight: 600;
-	border-radius: 12px;
-	padding: 10px;
-	border: none;
-	transition: 0.3s;
-	margin-top: 10px;
+}
+	.hero{
+	min-height:100vh;
+	display:flex;
+	align-items:center;
+	padding:120px 0 60px;
 }
 
-.buy-btn:hover{
-	background: linear-gradient(135deg, #1d4ed8, #0f172a);
-	transform: scale(1.05);
-	box-shadow: 0 10px 20px rgba(37,99,235,0.4);
+.hero-badge{
+	display:inline-block;
+	background:#2563eb;
+	padding:8px 18px;
+	border-radius:50px;
+	font-size:14px;
+	font-weight:700;
 }
 
-/* Section heading */
-h2{
-	letter-spacing: 1px;
+.hero-title{
+	font-size:60px;
+	font-weight:800;
+	line-height:1.1;
 }
+
+.hero-title span{
+	color:#60a5fa;
+}
+
+.hero-text{
+	font-size:18px;
+	color:#d1d5db;
+	max-width:520px;
+}
+
+.search-box{
+	display:flex;
+	background:#fff;
+	border-radius:50px;
+	overflow:hidden;
+	margin-top:25px;
+	box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+
+.search-box input{
+	flex:1;
+	border:none;
+	padding:16px 20px;
+	outline:none;
+	font-size:16px;
+}
+
+.search-btn{
+	background:#2563eb;
+	color:#fff;
+	text-decoration:none;
+	padding:16px 28px;
+	font-weight:700;
+}
+
+.hero-buttons{
+	display:flex;
+	gap:15px;
+	flex-wrap:wrap;
+}
+
+.hero-image-box{
+	background:#fff;
+	padding:25px;
+	border-radius:30px;
+	box-shadow:0 20px 50px rgba(0,0,0,.25);
+}
+
 .hero-img{
 	width:100%;
-	max-height:450px;
+	max-height:480px;
 	object-fit:contain;
-	background:white;
-	padding:15px;
-	border-radius:20px;
-	box-shadow:0 20px 50px rgba(0,0,0,0.4);
 	animation:float 4s ease-in-out infinite;
 }
 
-@keyframes float{
-	0%,100%{
-		transform:translateY(0);
-	}
-	50%{
-		transform:translateY(-15px);
-	}
+@media(max-width:768px){
+
+.hero{
+	padding-top:100px;
+	text-align:center;
 }
 
-.feature{
-	background: white;
+.hero-title{
+	font-size:38px;
+}
+
+.hero-text{
+	font-size:16px;
+	max-width:100%;
+}
+
+.search-box{
+	flex-direction:column;
+	border-radius:20px;
+}
+
+.search-btn{
+	text-align:center;
+}
+
+.hero-buttons{
+	justify-content:center;
+}
+
+.hero-image-box{
+	margin-bottom:25px;
+}
+
+}
+.category-grid{
+	display:grid;
+	grid-template-columns:repeat(4,1fr);
+	gap:20px;
+}
+
+.category-card{
+	background:white;
+	color:#111827;
+	border-radius:20px;
 	padding:25px;
-	border-radius:15px;
-	backdrop-filter:blur(10px);
-	font-weight:bold;
-	transition:0.3s;
+	text-align:center;
+	text-decoration:none;
+	transition:.3s;
+	box-shadow:0 10px 25px rgba(0,0,0,.15);
 }
 
-.feature:hover{
+.category-card:hover{
 	transform:translateY(-8px);
-	box-shadow:0 15px 30px rgba(0,0,0,0.3);
-}
-
-.form-control{
-	border:none;
-	border-radius:12px;
-	padding:12px;
-}
-
-.form-control:focus{
-	box-shadow:0 0 15px rgba(37,99,235,0.5);
-}
-
-.btn-primary{
 	background:#2563eb;
-	border:none;
-}
-.brand {
-	background: white;
-	color: #0f172a;
-	padding: 30px;
-	border-radius: 15px;
-	font-weight: 700;
-	cursor: pointer;
-	transition: 0.3s;
+	color:white;
 }
 
-.brand:hover {
-	background: #2563eb;
-	color: white;
-	transform: translateY(-8px);
-}
-.btn-primary:hover{
-	background:#1d4ed8;
+.category-icon{
+	font-size:42px;
+	margin-bottom:15px;
 }
 
+.category-card h5{
+	font-weight:700;
+	margin-bottom:8px;
+}
 
+.category-card p{
+	margin:0;
+	font-size:14px;
+	color:#6b7280;
+}
+
+.category-card:hover p{
+	color:#fff;
+}
+
+@media(max-width:768px){
+
+.category-grid{
+	grid-template-columns:repeat(2,1fr);
+	gap:15px;
+}
+
+.category-card{
+	padding:18px;
+}
+
+.category-icon{
+	font-size:32px;
+}
+
+}
+.products-slider{
+
+	display:flex;
+	gap:20px;
+
+	overflow-x:auto;
+
+	scroll-behavior:smooth;
+
+	padding-bottom:10px;
+}
+
+.products-slider::-webkit-scrollbar{
+	display:none;
+}
+
+.product-item{
+
+	min-width:280px;
+
+	flex:0 0 auto;
+}
+
+.price{
+
+	font-size:20px;
+
+	font-weight:700;
+
+	color:#2563eb;
+}
+
+@media(max-width:768px){
+
+.product-item{
+
+	min-width:180px;
+}
+
+.product-card img{
+
+	height:150px;
+	padding:10px;
+}
+
+.product-card h5{
+
+	font-size:15px;
+}
+
+.price{
+
+	font-size:17px;
+}
+
+.buy-btn{
+
+	font-size:14px;
+	padding:8px;
+}
+
+}
+.brand-grid{
+	display:grid;
+	grid-template-columns:repeat(4,1fr);
+	gap:20px;
+}
+
+.brand-card{
+	background:rgba(255,255,255,.08);
+	backdrop-filter:blur(15px);
+	border:1px solid rgba(255,255,255,.15);
+
+	color:white;
+	text-decoration:none;
+
+	padding:22px 10px;
+
+	border-radius:18px;
+
+	font-weight:700;
+
+	font-size:18px;
+
+	text-align:center;
+
+	transition:.35s;
+
+	box-shadow:0 10px 25px rgba(0,0,0,.25);
+}
+
+.brand-card:hover{
+
+	transform:translateY(-8px);
+
+	background:linear-gradient(135deg,#2563eb,#7c3aed);
+
+	border-color:transparent;
+
+	color:#fff;
+
+	box-shadow:0 20px 35px rgba(37,99,235,.35);
+}
 
 @media(max-width:991px){
 
-	.hero{
-		padding-top:100px;
-		text-align:center;
+.brand-grid{
+
+	grid-template-columns:repeat(4,1fr);
+}
+
+}
+
+@media(max-width:768px){
+
+.brand-grid{
+
+	grid-template-columns:repeat(2,1fr);
+
+	gap:15px;
+}
+
+.brand-card{
+
+	font-size:16px;
+
+	padding:18px 8px;
+}
+
+}
+.trust-grid{
+	display:grid;
+	grid-template-columns:repeat(4,1fr);
+	gap:20px;
+	text-align:center;
+}
+
+.trust-card{
+	background:rgba(255,255,255,0.06);
+	border:1px solid rgba(255,255,255,0.12);
+	padding:20px;
+	border-radius:16px;
+	backdrop-filter:blur(10px);
+	font-weight:600;
+	transition:0.3s;
+}
+
+.trust-card span{
+	display:block;
+	margin-top:8px;
+}
+
+.trust-card:hover{
+	transform:translateY(-6px);
+	background:#2563eb;
+	color:white;
+}
+
+@media(max-width:768px){
+	.trust-grid{
+		grid-template-columns:repeat(2,1fr);
 	}
+}
+.category-grid{
+	display:grid;
+	grid-template-columns:repeat(4,1fr);
+	gap:20px;
+}
 
-	.form-control{
-		width:100% !important;
+.category-card{
+	background:#fff;
+	color:#111;
+	border-radius:18px;
+	padding:25px;
+	text-align:center;
+	text-decoration:none;
+	transition:0.3s;
+	box-shadow:0 10px 25px rgba(0,0,0,0.1);
+}
+
+.cat-icon{
+	font-size:34px;
+	margin-bottom:10px;
+}
+
+.category-card:hover{
+	transform:translateY(-8px);
+	background:#2563eb;
+	color:white;
+}
+
+@media(max-width:768px){
+	.category-grid{
+		grid-template-columns:repeat(2,1fr);
+		gap:15px;
 	}
-
-	.hero-img{
-		margin-top:30px;
-	
-	}
-}
-.offer-banner {
-	background: linear-gradient(135deg, #ef4444, #f97316);
-	padding: 15px;
-	border-radius: 12px;
-	font-weight: 700;
-	letter-spacing: 1px;
-	box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-	animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-	0%,100% { transform: scale(1); }
-	50% { transform: scale(1.02); }
-}
-.cat-card {
-	background: linear-gradient(135deg, #ffffff, #f1f5f9);
-	color: #0f172a;
-	padding: 30px 20px;
-	border-radius: 18px;
-	font-weight: 700;
-	font-size: 18px;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-	position: relative;
-	overflow: hidden;
-}
-
-/* hover effect */
-.cat-card:hover {
-	transform: translateY(-10px) scale(1.03);
-	box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-	background: linear-gradient(135deg, #2563eb, #1d4ed8);
-	color: white;
-}
-
-/* emoji bigger look */
-.cat-card {
-	font-size: 20px;
-}
-
-/* ripple glow effect */
-.cat-card::after {
-	content: "";
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	width: 0;
-	height: 0;
-	background: rgba(255,255,255,0.2);
-	border-radius: 50%;
-	transform: translate(-50%, -50%);
-	transition: width 0.4s ease, height 0.4s ease;
-}
-
-.cat-card:hover::after {
-	width: 300px;
-	height: 300px;
-}
-.stats-box{
-	position: relative;
-	overflow: hidden;
-
-	background: rgba(255,255,255,0.08);
-	backdrop-filter: blur(20px);
-
-	padding: 35px 20px;
-	border-radius: 24px;
-
-	border: 1px solid rgba(255,255,255,0.12);
-
-	text-align: center;
-
-	box-shadow:
-		0 15px 35px rgba(0,0,0,0.25),
-		inset 0 1px 1px rgba(255,255,255,0.1);
-
-	transition: all 0.35s ease;
-}
-
-/* Glow Line */
-.stats-box::before{
-	content: "";
-	position: absolute;
-	top: 0;
-	left: -100%;
-	width: 100%;
-	height: 3px;
-
-	background: linear-gradient(
-		90deg,
-		transparent,
-		#60a5fa,
-		#a855f7,
-		transparent
-	);
-
-	transition: 0.6s;
-}
-
-.stats-box:hover::before{
-	left: 100%;
-}
-
-.stats-box:hover{
-	transform: translateY(-12px) scale(1.03);
-
-	border-color: rgba(96,165,250,0.5);
-
-	box-shadow:
-		0 25px 50px rgba(37,99,235,0.35),
-		0 0 30px rgba(124,58,237,0.25);
-}
-
-.stats-box h1{
-	font-size: 3.2rem;
-	font-weight: 800;
-	margin-bottom: 10px;
-
-	background: linear-gradient(
-		135deg,
-		#60a5fa,
-		#a855f7
-	);
-
-	-webkit-background-clip: text;
-	-webkit-text-fill-color: transparent;
-}
-
-.stats-box p{
-	color: #cbd5e1;
-	font-size: 1rem;
-	letter-spacing: 0.5px;
-	margin: 0;
 }
 </style>
