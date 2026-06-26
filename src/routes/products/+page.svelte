@@ -97,7 +97,7 @@ return item;
 
 	<div class="row">
 		<div class="col-md-6">
-			<img src={selectedProduct.img} class="img-fluid product-img" />
+			<img src={selectedProduct.img} class="img-fluid product-img" alt={selectedProduct.name} />
 		</div>
 
 		<div class="col-md-6">
@@ -138,8 +138,7 @@ Add to Cart
 
                 <div class="card product-card">
 
-                    <img src={product.img} class="product-img" />
-
+                    <img src={product.img} class="product-img" alt={product.name} />
                     <div class="card-body text-center">
 
                         <h5>{product.name}</h5>
