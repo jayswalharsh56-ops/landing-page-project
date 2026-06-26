@@ -453,9 +453,7 @@ h2{
 	background:#1d4ed8;
 }
 
-.btn-outline-light:hover{
-	color:#000;
-}
+
 
 @media(max-width:991px){
 
