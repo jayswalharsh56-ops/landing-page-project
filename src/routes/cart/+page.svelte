@@ -35,8 +35,7 @@
 		{#each cartItems as item}
 			<div class="card mb-3 p-3 d-flex flex-row align-items-center">
 
-				<img src={item.imageUrl} width="80" class="me-3" />
-
+				<img src={item.imageUrl} width="80" class="me-3" alt="product image" />
 				<div class="flex-grow-1">
 					<h5>{item.name}</h5>
 					<p>₹ {item.price}</p>

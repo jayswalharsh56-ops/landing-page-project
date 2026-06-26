@@ -124,11 +124,7 @@
 
 							<div class="product-item">
 
-								<img
-									src={item.imageUrl || '/placeholder.png'}
-									class="product-img"
-									alt={item.name}
-								/>
+								<img src={user.photoURL || '/default.png'} class="profile-img" alt="profile image" />
 
 								<div>
 									<p><strong>{item.name}</strong></p>

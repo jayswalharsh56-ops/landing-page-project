@@ -96,12 +96,7 @@
 
 			<div class="d-flex align-items-center gap-3">
 
-				<img
-					src={product.imageUrl}
-					width="100"
-					height="100"
-					style="object-fit:cover;border-radius:10px;"
-				/>
+				<img src={product.imageUrl} width="100" alt={product.name} />
 
 				<div class="flex-grow-1">
 

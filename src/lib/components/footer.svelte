@@ -33,10 +33,10 @@
 			<div class="col-md-3">
 				<h5 class="mb-3">Categories</h5>
 
-				<a href="#">Mobiles</a>
-				<a href="#">Laptops</a>
-				<a href="#">Accessories</a>
-				<a href="#">Smartwatch</a>
+				<a href="/products?category=mobiles">Mobiles</a>
+<a href="/products?category=laptops">Laptops</a>
+<a href="/products?category=accessories">Accessories</a>
+<a href="/products?category=smartwatch">Smartwatch</a>
 			</div>
 
 			<!-- CONTACT -->
