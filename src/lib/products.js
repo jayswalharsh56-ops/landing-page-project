@@ -138,6 +138,48 @@ export const accessories = [
 		description: "Budget wireless earbuds"
 	}
 ];
+/* =========================
+   💻 LAPTOP PRODUCTS
+========================= */
+export const laptops = [
+	{
+		id: "macbookairm4",
+		name: "MacBook Air M4",
+		price: 114999,
+		oldPrice: 124999,
+		imageUrl: "https://m.media-amazon.com/images/I/71f5Eu5lJSL._SL1500_.jpg",
+		category: "laptop",
+		stock: 5,
+		rating: 5,
+		offer: "🔥 New Launch",
+		description: "Apple MacBook Air with M4 chip."
+	},
+	{
+		id: "macbookprom4",
+		name: "MacBook Pro M4",
+		price: 169999,
+		oldPrice: 179999,
+		imageUrl: "https://m.media-amazon.com/images/I/61L5QgPvgqL._SL1500_.jpg",
+		category: "laptop",
+		stock: 5,
+		rating: 5,
+		offer: "⚡ Pro Performance",
+		description: "Powerful MacBook Pro for professionals."
+	},
+	{
+		id: "asusrog",
+		name: "ASUS ROG Strix",
+		price: 149999,
+		oldPrice: 159999,
+		imageUrl: "https://m.media-amazon.com/images/I/71rNJQ2g-EL._SL1500_.jpg",
+		category: "laptop",
+		stock: 5,
+		rating: 5,
+		offer: "🎮 Gaming Beast",
+		description: "High-performance gaming laptop."
+	},
+	
+];
 
 /* =========================
    🔥 MASTER ARRAY (IMPORTANT)
@@ -145,5 +187,6 @@ export const accessories = [
 export const allProducts = [
 	...products,
 	...watches,
-	...accessories
+	...accessories,
+	...laptops
 ];
