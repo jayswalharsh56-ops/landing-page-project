@@ -27,7 +27,21 @@
 </script>
 
 
+<!-- ================= SEARCH ================= -->
 
+<section class="search-section">
+
+	<div class="search-wrapper">
+
+		<input
+			bind:value={search}
+			type="text"
+			placeholder="🔍 Search Mobiles, Watches, Headphones & Laptops..."
+		/>
+
+	</div>
+
+</section>
 
 <!-- ================= CATEGORIES ================= -->
 
@@ -475,32 +489,7 @@
 	font-family:system-ui,sans-serif;
 }
 
-.hero{
-	max-width:1300px;
-	margin:auto;
-	padding:80px 20px;
-	display:flex;
-	align-items:center;
-	justify-content:space-between;
-	gap:60px;
-}
 
-.hero-left{
-	flex:1;
-}
-
-.hero-right{
-	flex:1;
-	display:flex;
-	justify-content:center;
-}
-
-.hero-right img{
-	width:100%;
-	max-width:420px;
-	object-fit:contain;
-	animation:float 4s ease-in-out infinite;
-}
 
 @keyframes float{
 
@@ -518,58 +507,6 @@
 
 }
 
-.badge{
-	display:inline-block;
-	padding:10px 18px;
-	background:#2563eb;
-	border-radius:50px;
-	font-weight:700;
-	margin-bottom:20px;
-}
-
-.hero h1{
-	font-size:60px;
-	font-weight:900;
-	line-height:1.1;
-	margin:0;
-}
-
-.hero h1 span{
-	color:#60a5fa;
-}
-
-.hero p{
-	margin:25px 0;
-	font-size:18px;
-	color:#cbd5e1;
-	max-width:500px;
-	line-height:1.6;
-}
-
-.search-box{
-	display:flex;
-	background:white;
-	border-radius:50px;
-	overflow:hidden;
-	max-width:500px;
-}
-
-.search-box input{
-	flex:1;
-	border:none;
-	outline:none;
-	padding:16px;
-	font-size:16px;
-}
-
-.search-box button{
-	border:none;
-	background:#2563eb;
-	color:white;
-	padding:0 30px;
-	cursor:pointer;
-	font-weight:700;
-}
 
 .categories{
 	max-width:1300px;
@@ -606,36 +543,7 @@
 
 @media(max-width:900px){
 
-.hero{
-	flex-direction:column;
-	text-align:center;
-}
 
-.hero h1{
-	font-size:42px;
-}
-
-.search-box{
-	margin:auto;
-}
-
-.categories{
-	grid-template-columns:repeat(2,1fr);
-}
-
-}
-
-@media(max-width:600px){
-
-.categories{
-	grid-template-columns:1fr 1fr;
-}
-
-.hero-right img{
-	max-width:280px;
-}
-
-}
 /* ================= MOBILE SECTION ================= */
 
 .product-section{
