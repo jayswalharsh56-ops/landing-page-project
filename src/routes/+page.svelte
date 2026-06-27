@@ -2,7 +2,11 @@
 	import { onMount } from 'svelte';
 	import { db } from '$lib/firebase';
 
-	import { cart } from '$lib/cart';
+	import { browser } from '$app/environment';
+
+if (browser) {
+	// use cart
+}
 
 
 
@@ -302,18 +306,20 @@ $: filteredProducts = products.filter(product =>
 </section>
 
 <style>
-:global(body) {
-	margin: 0;
-	padding: 0;
-	min-height: 100vh;
+:global(body){
+	margin:0;
+	font-family: system-ui;
+	background:#0b1220;
+	color:white;
+}
 
-	background:
-		radial-gradient(circle at top left, #2563eb, transparent 40%),
-		radial-gradient(circle at bottom right, #7c3aed, transparent 40%),
-		linear-gradient(135deg, #0f172a, #020617);
+section{
+	padding:90px 20px;
+}
 
-	background-attachment: fixed;
-	color: white;
+.container{
+	max-width:1200px;
+	margin:auto;
 }
 	.hero{
 	min-height:100vh;

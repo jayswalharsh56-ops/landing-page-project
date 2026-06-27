@@ -1,41 +1,50 @@
 import { writable } from 'svelte/store';
 
 function createCart() {
-	const stored = typeof localStorage !== 'undefined'
-		? localStorage.getItem('cart')
-		: null;
+	const { subscribe, set, update } = writable([]);
 
-	const initialValue = stored ? JSON.parse(stored) : [];
+	const isBrowser = typeof window !== 'undefined';
 
-	const { subscribe, set, update } = writable(initialValue);
+	if (isBrowser) {
+		const saved = localStorage.getItem('cart');
+		if (saved) set(JSON.parse(saved));
+	}
+
+	function save(items) {
+		if (isBrowser) {
+			localStorage.setItem('cart', JSON.stringify(items));
+		}
+	}
 
 	return {
 		subscribe,
 
-		set(value) {
-			if (typeof localStorage !== 'undefined') {
-				localStorage.setItem('cart', JSON.stringify(value));
-			}
-			set(value);
-		},
-
-		update(callback) {
+		add: (product) => {
 			update(items => {
-				const updated = callback(items);
+				const item = items.find(i => i.id === product.id);
 
-				if (typeof localStorage !== 'undefined') {
-					localStorage.setItem('cart', JSON.stringify(updated));
+				if (item) {
+					item.qty += 1;
+				} else {
+					items.push({ ...product, qty: 1 });
 				}
 
-				return updated;
+				save(items);
+				return items;
 			});
 		},
 
-		clear() {
-			if (typeof localStorage !== 'undefined') {
-				localStorage.removeItem('cart');
-			}
+		remove: (id) => {
+			update(items => {
+				const filtered = items.filter(i => i.id !== id);
+				save(filtered);
+				return filtered;
+			});
+		},
+
+		clear: () => {
 			set([]);
+			if (isBrowser) localStorage.removeItem('cart');
 		}
 	};
 }
