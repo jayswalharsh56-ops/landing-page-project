@@ -1,589 +1,245 @@
 <script>
-	import { onMount } from 'svelte';
 	import { allProducts } from '$lib/products';
 	import { cart } from '$lib/stores/cart';
 
-	let products = [];
-
 	let search = "";
+	let selectedCategory = "all";
 
-	const heroImages = [
-		"https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-max-1.jpg",
-		"https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-s24-ultra-1.jpg",
-		"https://fdn2.gsmarena.com/vv/pics/google/google-pixel-9-pro-xl-1.jpg"
+	const categories = [
+		{ id: "all", name: "All Products", icon: "🛍️" },
+		{ id: "mobile", name: "Mobiles", icon: "📱" },
+		{ id: "watch", name: "Smart Watches", icon: "⌚" },
+		{ id: "accessory", name: "Headphones", icon: "🎧" },
+		{ id: "laptop", name: "Laptops", icon: "💻" }
 	];
 
-	let current = 0;
+	$: filteredProducts = allProducts.filter((p) => {
+		const matchCategory =
+			selectedCategory === "all" || p.category === selectedCategory;
 
-	onMount(() => {
-		products = allProducts;
+		const matchSearch = p.name
+			.toLowerCase()
+			.includes(search.toLowerCase());
 
-		const slider = setInterval(() => {
-			current = (current + 1) % heroImages.length;
-		}, 3000);
-
-		return () => clearInterval(slider);
+		return matchCategory && matchSearch;
 	});
 </script>
+<!-- ================= HEADER ================= -->
 
+<section class="page-header">
+	<h1>🛍️ Our Products</h1>
+	<p>Find your favourite gadgets at the best prices.</p>
+</section>
 
 <!-- ================= SEARCH ================= -->
 
-<section class="search-section">
-
-	<div class="search-wrapper">
-
-		<input
-			bind:value={search}
-			type="text"
-			placeholder="🔍 Search Mobiles, Watches, Headphones & Laptops..."
-		/>
-
-	</div>
-
+<section class="search-bar">
+	<input
+		type="text"
+		bind:value={search}
+		placeholder="🔍 Search products..."
+	/>
 </section>
 
-<!-- ================= CATEGORIES ================= -->
+<!-- ================= MAIN LAYOUT ================= -->
 
-<section class="categories">
+<div class="shop-layout">
 
-	<div class="cat-card">
-		📱
-		<span>Mobiles</span>
-	</div>
+	<!-- Sidebar -->
 
-	<div class="cat-card">
-		⌚
-		<span>Watches</span>
-	</div>
+	<aside class="sidebar">
 
-	<div class="cat-card">
-		🎧
-		<span>Headphones</span>
-	</div>
+		<h3>Categories</h3>
 
-	<div class="cat-card">
-		💻
-		<span>Laptops</span>
-	</div>
+		{#each categories as c}
 
-</section>
-<!-- ================= MOBILES ================= -->
-
-<section class="product-section">
-
-	<div class="section-title">
-
-		<h2>📱 Mobiles</h2>
-
-		<a href="/products">
-			View All →
-		</a>
-
-	</div>
-
-	<div class="product-grid">
-
-		{#each products
-			.filter(
-				p =>
-					p.category === "mobile" &&
-					p.name.toLowerCase().includes(search.toLowerCase())
-			) as p}
-
-			<div class="product-card">
-
-				<div class="offer">
-					{p.offer}
-				</div>
-
-				<a href={`/products/${p.id}`}>
-
-					<img
-						src={p.imageUrl}
-						alt={p.name}
-					/>
-
-				</a>
-
-				<div class="rating">
-
-					{"⭐".repeat(p.rating)}
-					<span>({p.rating}.0)</span>
-
-				</div>
-
-				<h3>{p.name}</h3>
-
-				<div class="price-box">
-
-					<span class="price">
-						₹{p.price}
-					</span>
-
-					<span class="old-price">
-						₹{p.oldPrice}
-					</span>
-
-				</div>
-
-				<div class="btns">
-
-					<button
-						class="cart-btn"
-						on:click={() => cart.add(p)}
-					>
-						Add to Cart
-					</button>
-
-					<a
-						class="view-btn"
-						href={`/products/${p.id}`}
-					>
-						View Details
-					</a>
-
-				</div>
-
-			</div>
+			<button
+				class:selected={selectedCategory === c.id}
+				on:click={() => selectedCategory = c.id}
+			>
+				{c.icon} {c.name}
+			</button>
 
 		{/each}
 
-	</div>
+	</aside>
 
-</section>
-<!-- ================= SMART WATCHES ================= -->
+	<!-- Products -->
 
-<section class="product-section">
+	<section class="products-area">
 
-	<div class="section-title">
+		<div class="products-grid">
 
-		<h2>⌚ Smart Watches</h2>
+			{#each filteredProducts as p}
 
-		<a href="/products">
-			View All →
-		</a>
+				<div class="product-card">
 
-	</div>
+					{#if p.offer}
+						<div class="offer">{p.offer}</div>
+					{/if}
 
-	<div class="product-grid">
-
-		{#each products
-			.filter(
-				p =>
-					p.category === "watch" &&
-					p.name.toLowerCase().includes(search.toLowerCase())
-			) as p}
-
-			<div class="product-card">
-
-				<div class="offer">
-					{p.offer}
-				</div>
-
-				<a href={`/products/${p.id}`}>
-
-					<img
-						src={p.imageUrl}
-						alt={p.name}
-					/>
-
-				</a>
-
-				<div class="rating">
-
-					{"⭐".repeat(p.rating)}
-					<span>({p.rating}.0)</span>
-
-				</div>
-
-				<h3>{p.name}</h3>
-
-				<div class="price-box">
-
-					<span class="price">
-						₹{p.price}
-					</span>
-
-					<span class="old-price">
-						₹{p.oldPrice}
-					</span>
-
-				</div>
-
-				<div class="btns">
-
-					<button
-						class="cart-btn"
-						on:click={() => cart.add(p)}
-					>
-						Add to Cart
-					</button>
-
-					<a
-						class="view-btn"
-						href={`/products/${p.id}`}
-					>
-						View Details
+					<a href={`/products/${p.id}`}>
+						<img src={p.imageUrl} alt={p.name} />
 					</a>
 
-				</div>
+					<div class="rating">
+						{"⭐".repeat(p.rating || 4)}
+					</div>
 
-			</div>
+					<h3>{p.name}</h3>
 
-		{/each}
+					<div class="price-box">
 
-	</div>
+						<span class="price">
+							₹{p.price}
+						</span>
 
-</section>
+						{#if p.oldPrice}
+							<span class="old-price">
+								₹{p.oldPrice}
+							</span>
+						{/if}
 
-<!-- ================= HEADPHONES ================= -->
+					</div>
 
-<section class="product-section">
+					<div class="btns">
 
-	<div class="section-title">
+						<button
+							class="cart-btn"
+							on:click={() => cart.add(p)}
+						>
+							Add to Cart
+						</button>
 
-		<h2>🎧 Headphones</h2>
+						<a
+							class="view-btn"
+							href={`/products/${p.id}`}
+						>
+							View Details
+						</a>
 
-		<a href="/products">
-			View All →
-		</a>
-
-	</div>
-
-	<div class="product-grid">
-
-		{#each products
-			.filter(
-				p =>
-					p.category === "accessory" &&
-					p.name.toLowerCase().includes(search.toLowerCase())
-			) as p}
-
-			<div class="product-card">
-
-				<a href={`/products/${p.id}`}>
-
-					<img
-						src={p.imageUrl}
-						alt={p.name}
-					/>
-
-				</a>
-
-				<div class="rating">
-
-					{"⭐".repeat(p.rating)}
-					<span>({p.rating}.0)</span>
+					</div>
 
 				</div>
 
-				<h3>{p.name}</h3>
-
-				<div class="price-box">
-
-					<span class="price">
-						₹{p.price}
-					</span>
-
-				</div>
-
-				<div class="btns">
-
-					<button
-						class="cart-btn"
-						on:click={() => cart.add(p)}
-					>
-						Add to Cart
-					</button>
-
-					<a
-						class="view-btn"
-						href={`/products/${p.id}`}
-					>
-						View Details
-					</a>
-
-				</div>
-
-			</div>
-
-		{/each}
-
-	</div>
-
-</section>
-<!-- ================= LAPTOPS ================= -->
-
-<section class="product-section">
-
-	<div class="section-title">
-		<h2>💻 Laptops</h2>
-		<a href="/products">View All →</a>
-	</div>
-
-	<div class="product-grid">
-
-		{#each products
-			.filter(
-				p =>
-					p.category === "laptop" &&
-					p.name.toLowerCase().includes(search.toLowerCase())
-			) as p}
-
-			<div class="product-card">
-
-				<div class="offer">
-					{p.offer}
-				</div>
-
-				<a href={`/products/${p.id}`}>
-					<img src={p.imageUrl} alt={p.name} />
-				</a>
-
-				<div class="rating">
-					{"⭐".repeat(p.rating)}
-					<span>({p.rating}.0)</span>
-				</div>
-
-				<h3>{p.name}</h3>
-
-				<div class="price-box">
-					<span class="price">₹{p.price}</span>
-					<span class="old-price">₹{p.oldPrice}</span>
-				</div>
-
-				<div class="btns">
-					<button
-						class="cart-btn"
-						on:click={() => cart.add(p)}
-					>
-						Add to Cart
-					</button>
-
-					<a
-						class="view-btn"
-						href={`/products/${p.id}`}
-					>
-						View Details
-					</a>
-				</div>
-
-			</div>
-
-		{/each}
-
-	</div>
-
-</section>
-<!-- ================= SALE BANNER ================= -->
-
-<section class="sale-banner">
-
-	<div class="sale-content">
-
-		<div>
-
-			<h2>🔥 Mega Gadget Sale</h2>
-
-			<p>
-				Up to <strong>50% OFF</strong> on Mobiles,
-				Smart Watches, Headphones & Laptops.
-			</p>
+			{/each}
 
 		</div>
 
-		<a href="/products" class="sale-btn">
-			Shop Now →
-		</a>
+	</section>
 
-	</div>
-
-</section>
-
-<!-- ================= WHY CHOOSE US ================= -->
-
-<section class="why-us">
-
-	<h2>Why Shop With Us?</h2>
-
-	<div class="why-grid">
-
-		<div class="why-card">
-			🚚
-			<h3>Free Shipping</h3>
-			<p>Fast & Free delivery all over India.</p>
-		</div>
-
-		<div class="why-card">
-			🔒
-			<h3>Secure Payment</h3>
-			<p>100% Safe & Trusted Payments.</p>
-		</div>
-
-		<div class="why-card">
-			↩️
-			<h3>Easy Returns</h3>
-			<p>7 Days Easy Replacement Policy.</p>
-		</div>
-
-		<div class="why-card">
-			⭐
-			<h3>Premium Products</h3>
-			<p>Only Genuine Branded Products.</p>
-		</div>
-
-	</div>
-
-</section>
-
-<!-- ================= TOP BRANDS ================= -->
-
-<section class="brands">
-
-	<h2>Top Brands</h2>
-
-	<div class="brand-grid">
-
-		<div>🍎 Apple</div>
-		<div>📱 Samsung</div>
-		<div>⚡ OnePlus</div>
-		<div>🟢 Xiaomi</div>
-		<div>🎧 Sony</div>
-		<div>🔥 ASUS</div>
-		<div>💻 HP</div>
-		<div>🖥 Lenovo</div>
-
-	</div>
-
-</section>
-
-<!-- ================= NEWSLETTER ================= -->
-
-<section class="newsletter">
-
-	<h2>Stay Updated</h2>
-
-	<p>Get latest offers & new arrivals directly in your inbox.</p>
-
-	<div class="newsletter-box">
-
-		<input
-			type="email"
-			placeholder="Enter your email..."
-		/>
-
-		<button>
-			Subscribe
-		</button>
-
-	</div>
-
-</section>
+</div>
 <style>
-
-:global(body){
+    :global(body){
 	margin:0;
+	font-family:system-ui,sans-serif;
 	background:#08111f;
 	color:white;
-	font-family:system-ui,sans-serif;
 }
 
-
-
-@keyframes float{
-
-	0%{
-		transform:translateY(0);
-	}
-
-	50%{
-		transform:translateY(-15px);
-	}
-
-	100%{
-		transform:translateY(0);
-	}
-
+.page-header{
+	max-width:1400px;
+	margin:40px auto 20px;
+	padding:0 20px;
 }
 
+.page-header h1{
+	font-size:42px;
+	margin:0;
+	font-weight:900;
+}
 
-.categories{
-	max-width:1300px;
-	margin:20px auto 60px;
+.page-header p{
+	color:#94a3b8;
+	margin-top:10px;
+}
+
+.search-bar{
+	max-width:1400px;
+	margin:25px auto;
+	padding:0 20px;
+}
+
+.search-bar input{
+	width:100%;
+	padding:16px 20px;
+	border:none;
+	border-radius:14px;
+	background:#111827;
+	color:white;
+	font-size:16px;
+	outline:none;
+	border:1px solid rgba(255,255,255,.08);
+}
+.sidebar button.selected{
+	background:#2563eb;
+	color:white;
+}
+.shop-layout{
+	max-width:1400px;
+	margin:35px auto 60px;
 	padding:0 20px;
 	display:grid;
-	grid-template-columns:repeat(4,1fr);
-	gap:20px;
+	grid-template-columns:260px 1fr;
+	gap:30px;
 }
 
-.cat-card{
+/* Sidebar */
+
+.sidebar{
 	background:#111827;
-	border-radius:20px;
 	padding:25px;
-	text-align:center;
-	font-size:28px;
-	cursor:pointer;
-	transition:.3s;
+	border-radius:20px;
+	height:max-content;
+	position:sticky;
+	top:20px;
 	border:1px solid rgba(255,255,255,.08);
 }
 
-.cat-card span{
-	display:block;
-	margin-top:10px;
-	font-size:17px;
-	font-weight:700;
+.sidebar h3{
+	margin-top:0;
+	margin-bottom:20px;
+	font-size:22px;
 }
 
-.cat-card:hover{
+.sidebar button{
+	width:100%;
+	border:none;
+	background:#1f2937;
+	color:white;
+	padding:14px;
+	margin-bottom:12px;
+	border-radius:12px;
+	text-align:left;
+	cursor:pointer;
+	font-size:15px;
+	font-weight:700;
+	transition:.3s;
+}
+
+.sidebar button:hover{
 	background:#2563eb;
-	transform:translateY(-8px);
-	box-shadow:0 20px 40px rgba(37,99,235,.35);
 }
 
-@media(max-width:900px){
-
-
-/* ================= MOBILE SECTION ================= */
-
-.product-section{
-	max-width:1300px;
-	margin:70px auto;
-	padding:0 20px;
+.sidebar button.selected{
+	background:#2563eb;
 }
 
-.section-title{
-	display:flex;
-	align-items:center;
-	justify-content:space-between;
-	margin-bottom:25px;
-}
+/* Products */
 
-.section-title h2{
-	font-size:34px;
-	font-weight:900;
-	margin:0;
-}
-
-.section-title a{
-	color:#60a5fa;
-	text-decoration:none;
-	font-weight:700;
-}
-
-.product-grid{
+.products-grid{
 	display:grid;
-	grid-template-columns:repeat(4,1fr);
-	gap:24px;
+	grid-template-columns:repeat(3,1fr);
+	gap:25px;
 }
 
 .product-card{
 	background:#111827;
-	border-radius:22px;
-	padding:20px;
-	border:1px solid rgba(255,255,255,.08);
+	border-radius:20px;
+	padding:18px;
 	position:relative;
-	transition:.3s;
+	border:1px solid rgba(255,255,255,.08);
+	transition:.35s;
 }
 
 .product-card:hover{
@@ -593,8 +249,8 @@
 
 .offer{
 	position:absolute;
-	top:15px;
 	left:15px;
+	top:15px;
 	background:#2563eb;
 	padding:6px 12px;
 	border-radius:20px;
@@ -611,273 +267,106 @@
 
 .rating{
 	color:#facc15;
-	margin-top:10px;
-}
-
-.rating span{
-	color:#94a3b8;
-	margin-left:5px;
+	margin-top:12px;
+	font-size:18px;
 }
 
 .product-card h3{
-	margin:12px 0;
-	min-height:48px;
+	margin:15px 0;
+	min-height:50px;
+	font-size:20px;
 }
 
 .price-box{
 	display:flex;
-	gap:10px;
 	align-items:center;
+	gap:10px;
 	margin-bottom:18px;
 }
 
 .price{
-	font-size:22px;
-	font-weight:800;
 	color:#60a5fa;
+	font-size:24px;
+	font-weight:800;
 }
 
 .old-price{
-	text-decoration:line-through;
 	color:#6b7280;
+	text-decoration:line-through;
 }
 
 .btns{
 	display:flex;
 	flex-direction:column;
-	gap:10px;
-}
-
-.cart-btn,
-.view-btn{
-	padding:12px;
-	border:none;
-	border-radius:10px;
-	text-align:center;
-	text-decoration:none;
-	font-weight:700;
-	cursor:pointer;
+	gap:12px;
 }
 
 .cart-btn{
 	background:#2563eb;
-	color:#fff;
+	color:white;
+	border:none;
+	padding:13px;
+	border-radius:10px;
+	cursor:pointer;
+	font-weight:700;
+}
+
+.cart-btn:hover{
+	background:#1d4ed8;
 }
 
 .view-btn{
 	background:#1f2937;
-	color:#fff;
+	color:white;
+	text-decoration:none;
+	text-align:center;
+	padding:13px;
+	border-radius:10px;
+	font-weight:700;
 }
 
 .view-btn:hover{
-	background:#2563eb;
+	background:#374151;
 }
+
+/* Tablet */
 
 @media(max-width:1000px){
-	.product-grid{
-		grid-template-columns:repeat(2,1fr);
-	}
-}
 
-@media(max-width:600px){
-	.product-grid{
+	.shop-layout{
 		grid-template-columns:1fr;
 	}
-}
-/* ================= SALE BANNER ================= */
 
-.sale-banner{
-	max-width:1300px;
-	margin:80px auto;
-	padding:45px;
-	background:linear-gradient(135deg,#2563eb,#1d4ed8);
-	border-radius:24px;
-}
+	.sidebar{
+		position:static;
+	}
 
-.sale-content{
-	display:flex;
-	align-items:center;
-	justify-content:space-between;
-	gap:20px;
-	flex-wrap:wrap;
-}
-
-.sale-content h2{
-	font-size:40px;
-	margin:0;
-}
-
-.sale-content p{
-	margin-top:10px;
-	font-size:18px;
-	color:white;
-}
-
-.sale-btn{
-	background:white;
-	color:#2563eb;
-	text-decoration:none;
-	padding:15px 28px;
-	border-radius:12px;
-	font-weight:800;
-	transition:.3s;
-}
-
-.sale-btn:hover{
-	transform:translateY(-4px);
-}
-
-@media(max-width:768px){
-
-.sale-content{
-	text-align:center;
-	justify-content:center;
-}
-
-.sale-content h2{
-	font-size:30px;
-}
-
-}
-/* ================= WHY US ================= */
-
-.why-us{
-	max-width:1300px;
-	margin:80px auto;
-	padding:0 20px;
-}
-
-.why-us h2{
-	font-size:36px;
-	margin-bottom:30px;
-}
-
-.why-grid{
-	display:grid;
-	grid-template-columns:repeat(4,1fr);
-	gap:20px;
-}
-
-.why-card{
-	background:#111827;
-	padding:30px;
-	border-radius:20px;
-	text-align:center;
-	border:1px solid rgba(255,255,255,.08);
-	transition:.3s;
-}
-
-.why-card:hover{
-	transform:translateY(-8px);
-	background:#2563eb;
-}
-
-/* ================= BRANDS ================= */
-
-.brands{
-	max-width:1300px;
-	margin:80px auto;
-	padding:0 20px;
-}
-
-.brands h2{
-	font-size:36px;
-	margin-bottom:25px;
-}
-
-.brand-grid{
-	display:grid;
-	grid-template-columns:repeat(4,1fr);
-	gap:20px;
-}
-
-.brand-grid div{
-	background:#111827;
-	padding:22px;
-	border-radius:18px;
-	text-align:center;
-	font-weight:700;
-	transition:.3s;
-}
-
-.brand-grid div:hover{
-	background:#2563eb;
-	transform:translateY(-6px);
-}
-
-/* ================= NEWSLETTER ================= */
-
-.newsletter{
-	max-width:900px;
-	margin:90px auto;
-	text-align:center;
-	padding:0 20px;
-}
-
-.newsletter h2{
-	font-size:40px;
-}
-
-.newsletter p{
-	color:#cbd5e1;
-	margin:20px 0;
-}
-
-.newsletter-box{
-	display:flex;
-	background:white;
-	border-radius:50px;
-	overflow:hidden;
-	max-width:600px;
-	margin:auto;
-}
-
-.newsletter-box input{
-	flex:1;
-	padding:16px;
-	border:none;
-	outline:none;
-}
-
-.newsletter-box button{
-	border:none;
-	background:#2563eb;
-	color:white;
-	padding:0 35px;
-	font-weight:700;
-	cursor:pointer;
-}
-
-/* ================= RESPONSIVE ================= */
-
-@media(max-width:900px){
-
-	.why-grid{
+	.products-grid{
 		grid-template-columns:repeat(2,1fr);
 	}
 
-	.brand-grid{
-		grid-template-columns:repeat(2,1fr);
-	}
-
-	.newsletter-box{
-		flex-direction:column;
-		border-radius:20px;
-	}
-
-	.newsletter-box button{
-		padding:16px;
-	}
 }
+
+/* Mobile */
 
 @media(max-width:600px){
 
-	.why-grid{
+	.page-header h1{
+		font-size:30px;
+	}
+
+	.products-grid{
 		grid-template-columns:1fr;
 	}
 
-	.brand-grid{
-		grid-template-columns:1fr;
+	.sidebar button{
+		font-size:14px;
+		padding:12px;
 	}
+
+	.product-card img{
+		height:180px;
+	}
+
 }
 </style>
