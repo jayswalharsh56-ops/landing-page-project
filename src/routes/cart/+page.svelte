@@ -1,19 +1,20 @@
 <script>
+	import { onMount } from 'svelte';
 	import { db } from '$lib/firebase';
 	import {
 		collection,
 		getDocs,
 		deleteDoc,
-		doc
+		doc,
+		updateDoc
 	} from 'firebase/firestore';
 
-	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 
 	let cartItems = [];
 
 	async function loadCart() {
-		const snapshot = await getDocs(collection(db, "cart"));
+		const snapshot = await getDocs(collection(db, 'cart'));
 
 		cartItems = snapshot.docs.map((doc) => ({
 			id: doc.id,
@@ -24,115 +25,94 @@
 	onMount(loadCart);
 
 	async function removeItem(id) {
-	await deleteDoc(doc(db, "cart", id));
-	loadCart();
-}
-
-function increase(index) {
-	cartItems[index].qty = (cartItems[index].qty || 1) + 1;
-	cartItems = [...cartItems];
-}
-
-function decrease(index) {
-	if ((cartItems[index].qty || 1) > 1) {
-		cartItems[index].qty--;
-		cartItems = [...cartItems];
+		await deleteDoc(doc(db, 'cart', id));
+		loadCart();
 	}
-}
 
-let coupon = "";
+	async function increase(index) {
+		const item = cartItems[index];
+		const newQty = (item.qty || 1) + 1;
 
-$: subtotal = cartItems.reduce(
-	(sum, item) => sum + Number(item.price) * (item.qty || 1),
-	0
-);
+		await updateDoc(doc(db, 'cart', item.id), {
+			qty: newQty
+		});
 
-$: discount = coupon === "SAVE10"
-	? subtotal * 0.10
-	: 0;
+		loadCart();
+	}
 
-$: total = subtotal - discount;
+	async function decrease(index) {
+		const item = cartItems[index];
+		const current = item.qty || 1;
+
+		if (current > 1) {
+			await updateDoc(doc(db, 'cart', item.id), {
+				qty: current - 1
+			});
+
+			loadCart();
+		}
+	}
+
+	let coupon = '';
+
+	$: subtotal =
+		cartItems.reduce(
+			(sum, item) => sum + Number(item.price) * (item.qty || 1),
+			0
+		);
+
+	$: discount = coupon === 'SAVE10' ? subtotal * 0.1 : 0;
+
+	$: total = subtotal - discount;
 </script>
-<section class="cart-page">
 
+<section class="cart-page">
 	<div class="cart-container">
 
-		<!-- LEFT -->
-
+		<!-- LEFT SIDE -->
 		<div class="cart-left">
-
 			<h1>🛒 Shopping Cart</h1>
 
 			{#if cartItems.length === 0}
-
 				<div class="empty-cart">
-
 					<h2>Your Cart is Empty 😢</h2>
+					<p>Add products to continue shopping</p>
 
-					<p>Add products to continue shopping.</p>
-
-					<button on:click={() => goto("/products")}>
+					<button on:click={() => goto('/products')}>
 						Continue Shopping
 					</button>
-
 				</div>
-
 			{:else}
-
 				{#each cartItems as item, i}
 					<div class="cart-card">
 
-						<img
-							src={item.imageUrl}
-							alt={item.name}
-						/>
+						<img src={item.img || item.imageUrl} alt={item.name} />
 
 						<div class="cart-info">
-
 							<h3>{item.name}</h3>
 
-							<p class="price">
-								₹{item.price}
-							</p>
+							<p class="price">₹{item.price}</p>
 
-							<p class="stock">
-								🟢 In Stock
-							</p>
+							<p class="stock">🟢 In Stock</p>
+
 							<div class="quantity">
-
-	<button on:click={() => decrease(i)}>
-		−
-	</button>
-
-	<span>{item.qty || 1}</span>
-
-	<button on:click={() => increase(i)}>
-		+
-	</button>
-
-</div>
-
+								<button on:click={() => decrease(i)}>−</button>
+								<span>{item.qty || 1}</span>
+								<button on:click={() => increase(i)}>+</button>
+							</div>
 						</div>
 
-						<button
-							class="remove-btn"
-							on:click={() => removeItem(item.id)}
-						>
+						<button class="remove-btn" on:click={() => removeItem(item.id)}>
 							🗑 Remove
 						</button>
 
 					</div>
-
 				{/each}
-
 			{/if}
-
 		</div>
 
-		<!-- RIGHT -->
-
+		<!-- RIGHT SIDE -->
 		<div class="summary">
-
 			<h2>Order Summary</h2>
 
 			<div class="row">
@@ -145,261 +125,144 @@ $: total = subtotal - discount;
 				<span>FREE</span>
 			</div>
 
-			<hr>
-			<div class="coupon">
+			<hr />
 
-	<input
-		bind:value={coupon}
-		placeholder="Coupon Code"
-	/>
+			<input
+				bind:value={coupon}
+				placeholder="Coupon Code"
+				class="coupon"
+			/>
 
-</div>
-
-<div class="row">
-	<span>Subtotal</span>
-	<span>₹{subtotal}</span>
-</div>
-
-<div class="row">
-	<span>Discount</span>
-	<span>- ₹{discount}</span>
-</div>
-
-			<div class="row total">
-
-				<span>Total</span>
-
-				<span>₹{total}</span>
-
+			<div class="row">
+				<span>Subtotal</span>
+				<span>₹{subtotal}</span>
 			</div>
 
-			<button
-				class="checkout-btn"
-				on:click={() => goto("/checkout")}
-			>
+			<div class="row">
+				<span>Discount</span>
+				<span>- ₹{discount}</span>
+			</div>
+
+			<div class="row total">
+				<span>Total</span>
+				<span>₹{total}</span>
+			</div>
+
+			<button class="checkout-btn" on:click={() => goto('/checkout')}>
 				Proceed to Checkout →
 			</button>
-
 		</div>
 
 	</div>
-
 </section>
+
 <style>
-	:global(body){
-	margin:0;
-	background:#08111f;
-	font-family:system-ui,sans-serif;
-	color:white;
-}
-
-.cart-page{
-	max-width:1400px;
-	margin:50px auto;
-	padding:0 20px;
-}
-
-.cart-container{
-	display:grid;
-	grid-template-columns:2fr 1fr;
-	gap:30px;
-	align-items:start;
-}
-
-/* LEFT */
-
-.cart-left h1{
-	font-size:38px;
-	margin-bottom:25px;
-}
-
-.cart-card{
-	display:flex;
-	align-items:center;
-	gap:20px;
-	background:#111827;
-	padding:20px;
-	border-radius:20px;
-	margin-bottom:20px;
-	border:1px solid rgba(255,255,255,.08);
-	transition:.3s;
-}
-
-.cart-card:hover{
-	transform:translateY(-5px);
-	box-shadow:0 20px 40px rgba(37,99,235,.25);
-}
-
-.cart-card img{
-	width:140px;
-	height:140px;
-	object-fit:contain;
-	background:white;
-	border-radius:15px;
-	padding:10px;
-}
-
-.cart-info{
-	flex:1;
-}
-
-.cart-info h3{
-	font-size:24px;
-	margin-bottom:10px;
-}
-
-.price{
-	font-size:28px;
-	font-weight:800;
-	color:#60a5fa;
-}
-
-.stock{
-	color:#22c55e;
-	font-weight:700;
-	margin-top:10px;
-}
-
-.remove-btn{
-	border:none;
-	background:#ef4444;
-	color:white;
-	padding:12px 18px;
-	border-radius:10px;
-	cursor:pointer;
-	font-weight:700;
-}
-
-.remove-btn:hover{
-	background:#dc2626;
-}
-
-/* RIGHT */
-
-.summary{
-	position:sticky;
-	top:20px;
-	background:#111827;
-	padding:25px;
-	border-radius:20px;
-	border:1px solid rgba(255,255,255,.08);
-}
-
-.summary h2{
-	margin-bottom:25px;
-}
-
-.row{
-	display:flex;
-	justify-content:space-between;
-	margin-bottom:18px;
-	font-size:18px;
-}
-
-.total{
-	font-size:26px;
-	font-weight:800;
-	color:#60a5fa;
-}
-
-.checkout-btn{
-	width:100%;
-	margin-top:25px;
-	padding:15px;
-	border:none;
-	border-radius:12px;
-	background:#2563eb;
-	color:white;
-	font-size:18px;
-	font-weight:700;
-	cursor:pointer;
-	transition:.3s;
-}
-
-.checkout-btn:hover{
-	background:#1d4ed8;
-	transform:translateY(-3px);
-}
-
-/* EMPTY CART */
-
-.empty-cart{
-	text-align:center;
-	background:#111827;
-	padding:60px;
-	border-radius:20px;
-}
-
-.empty-cart button{
-	margin-top:20px;
-	padding:14px 30px;
-	border:none;
-	border-radius:10px;
-	background:#2563eb;
-	color:white;
-	cursor:pointer;
-	font-weight:700;
-}
-
-/* Responsive */
-
-@media(max-width:900px){
-
-	.cart-container{
-		grid-template-columns:1fr;
+	:global(body) {
+		margin: 0;
+		background: #08111f;
+		color: white;
+		font-family: system-ui;
 	}
 
-	.cart-card{
-		flex-direction:column;
-		text-align:center;
+	.cart-container {
+		max-width: 1400px;
+		margin: 40px auto;
+		display: grid;
+		grid-template-columns: 2fr 1fr;
+		gap: 30px;
+		padding: 0 20px;
 	}
 
-	.cart-card img{
-		width:180px;
-		height:180px;
+	.cart-card {
+		display: flex;
+		align-items: center;
+		gap: 20px;
+		background: #111827;
+		padding: 20px;
+		border-radius: 15px;
+		margin-bottom: 15px;
 	}
 
-	.summary{
-		position:static;
+	.cart-card img {
+		width: 120px;
+		height: 120px;
+		object-fit: contain;
+		background: white;
+		border-radius: 10px;
 	}
 
-}
-.quantity{
-	display:flex;
-	align-items:center;
-	gap:12px;
-	margin-top:15px;
-}
+	.cart-info {
+		flex: 1;
+	}
 
-.quantity button{
-	width:36px;
-	height:36px;
-	border:none;
-	border-radius:8px;
-	background:#2563eb;
-	color:white;
-	font-size:20px;
-	cursor:pointer;
-}
+	.price {
+		color: #60a5fa;
+		font-size: 22px;
+		font-weight: bold;
+	}
 
-.quantity span{
-	font-size:18px;
-	font-weight:700;
-	min-width:25px;
-	text-align:center;
-}
+	.quantity {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin-top: 10px;
+	}
 
-.coupon{
-	margin-bottom:20px;
-}
+	.quantity button {
+		width: 30px;
+		height: 30px;
+		background: #2563eb;
+		color: white;
+		border: none;
+		border-radius: 6px;
+	}
 
-.coupon input{
-	width:100%;
-	padding:12px;
-	border:none;
-	border-radius:10px;
-	background:#1f2937;
-	color:white;
-	outline:none;
-}
+	.remove-btn {
+		background: red;
+		border: none;
+		color: white;
+		padding: 10px 15px;
+		border-radius: 8px;
+	}
+
+	.summary {
+		background: #111827;
+		padding: 20px;
+		border-radius: 15px;
+		position: sticky;
+		top: 20px;
+	}
+
+	.row {
+		display: flex;
+		justify-content: space-between;
+		margin: 10px 0;
+	}
+
+	.total {
+		font-size: 20px;
+		font-weight: bold;
+		color: #60a5fa;
+	}
+
+	.coupon {
+		width: 100%;
+		padding: 10px;
+		margin: 10px 0;
+		border-radius: 8px;
+		border: none;
+		background: #1f2937;
+		color: white;
+	}
+
+	.checkout-btn {
+		width: 100%;
+		margin-top: 20px;
+		padding: 12px;
+		background: #2563eb;
+		border: none;
+		color: white;
+		border-radius: 10px;
+		cursor: pointer;
+	}
 </style>

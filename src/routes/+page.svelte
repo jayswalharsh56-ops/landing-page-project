@@ -100,6 +100,25 @@
 	</div>
 
 </section>
+<section class="iphone-17">
+	<div class="i-phone">
+		
+		<!-- IMAGE (tu replace kari dese) -->
+		<img src="/iphone.png" alt="iPhone 17" />
+
+		<h1>iPhone 17 Pro</h1>
+		<hr>
+
+<p>
+Next-generation Apple smartphone designed for ultra performance, AI-powered features, and professional-grade camera system.
+</p>
+
+
+
+
+		
+	</div>
+</section>
 <section class="container py-5">
 
 	<h2 class="section-title">
@@ -559,7 +578,88 @@ section{
 	max-height:450px;
 	object-fit:contain;
 }
+.iphone-17{
+	min-height:100vh;
+	display:flex;
+	justify-content:center;
+	align-items:center;
+	padding:80px 20px;
+	background: radial-gradient(circle at top, #0b1220, #050a14);
+}
 
+/* MAIN LAYOUT */
+.i-phone{
+	width:100%;
+	max-width:1200px;
+	display:flex;
+	align-items:center;
+	justify-content:space-between;
+	gap:80px;
+}
+
+/* IMAGE SIDE */
+.i-phone img{
+	width:100%;
+	max-width:420px;
+	height:auto;
+	object-fit:contain;
+	border-radius: 15px;
+
+	transform: scale(1.05);
+	transition: all 0.5s ease;
+
+	filter: drop-shadow(0 30px 60px rgba(0,0,0,0.7));
+}
+
+.i-phone img:hover{
+	transform: scale(1.25) rotate(-1deg);
+}
+
+/* TITLE */
+.i-phone h1{
+	font-size:58px;
+	font-weight:900;
+	margin-bottom:15px;
+
+	background: linear-gradient(90deg, #ffffff, #60a5fa, #93c5fd);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+
+	letter-spacing: -1px;
+}
+
+/* DESCRIPTION */
+.i-phone p{
+	color:#cbd5e1;
+	font-size:18px;
+	line-height:1.7;
+	max-width:560px;
+	margin-bottom:22px;
+}
+
+
+
+/* RESPONSIVE */
+@media(max-width:900px){
+	.i-phone{
+		flex-direction:column;
+		text-align:center;
+		gap:40px;
+	}
+
+	.i-phone img{
+		max-width:95%;
+		transform:scale(1);
+	}
+
+	.i-phone h1{
+		font-size:40px;
+	}
+
+	.i-phone p{
+		text-align:center;
+	}
+}
 /* CATEGORY */
 
 .section-title{

@@ -5,11 +5,13 @@ function createCart() {
 
 	const isBrowser = typeof window !== 'undefined';
 
+	// Load cart from localStorage
 	if (isBrowser) {
 		const saved = localStorage.getItem('cart');
 		if (saved) set(JSON.parse(saved));
 	}
 
+	// Save cart to localStorage
 	function save(items) {
 		if (isBrowser) {
 			localStorage.setItem('cart', JSON.stringify(items));
@@ -19,29 +21,38 @@ function createCart() {
 	return {
 		subscribe,
 
+		// ADD TO CART
 		add: (product) => {
 			update(items => {
-				const item = items.find(i => i.id === product.id);
+				const existing = items.find(i => i.id === product.id);
 
-				if (item) {
-					item.qty += 1;
+				let updated;
+
+				if (existing) {
+					updated = items.map(i =>
+						i.id === product.id
+							? { ...i, qty: i.qty + 1 }
+							: i
+					);
 				} else {
-					items.push({ ...product, qty: 1 });
+					updated = [...items, { ...product, qty: 1 }];
 				}
 
-				save(items);
-				return items;
+				save(updated);
+				return updated;
 			});
 		},
 
+		// REMOVE ITEM
 		remove: (id) => {
 			update(items => {
-				const filtered = items.filter(i => i.id !== id);
-				save(filtered);
-				return filtered;
+				const updated = items.filter(i => i.id !== id);
+				save(updated);
+				return updated;
 			});
 		},
 
+		// CLEAR CART
 		clear: () => {
 			set([]);
 			if (isBrowser) localStorage.removeItem('cart');

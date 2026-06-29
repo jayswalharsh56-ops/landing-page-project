@@ -1,235 +1,143 @@
- 
-
 <script>
 	import { cart } from '$lib/stores/cart';
-	import { db, auth } from '$lib/firebase';
-	import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
-    import { onMount } from 'svelte';
+	import { db } from '$lib/firebase';
+	import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+	import { goto } from '$app/navigation';
 
-    onMount(() => {
-	const script = document.createElement('script');
-	script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-	script.async = true;
-	document.body.appendChild(script);
-});
+	let name = '';
+	let phone = '';
+	let address = '';
+	let loading = false;
 
-	let name = "";
-	let address = "";
-	let phone = "";
-	let paymentMethod = "COD";
+	let cartItems = [];
 
-	$: items = $cart;
-    $: console.log("Cart Items:", items);
+	// subscribe cart
+	cart.subscribe((value) => {
+		cartItems = value;
+	});
 
-	$: total = items.reduce(
-		(sum, item) => sum + Number(item.price || 0) * Number(item.qty || 1),
+	// total calculate
+	$: total = cartItems.reduce(
+		(sum, item) => sum + item.price * (item.qty || 1),
 		0
 	);
-    
-	function payWithRazorpay(orderId, amount) {
-
-		const options = {
-			key: "YOUR_RAZORPAY_KEY",
-			amount: amount * 100,
-			currency: "INR",
-			name: "My Store",
-
-			handler: async function (response) {
-
-				await updateDoc(doc(db, "orders", orderId), {
-					paymentStatus: "Paid",
-					paymentMethod: "Razorpay",
-					status: "Processing",
-					paymentId: response.razorpay_payment_id
-				});
-
-				alert("Payment Successful 🎉");
-			}
-		};
-
-		new Razorpay(options).open();
-	}
 
 	async function placeOrder() {
-
-		if (!auth.currentUser) {
-			alert("Please login first");
+		if (!name || !phone || !address) {
+			alert('Please fill all details');
 			return;
 		}
 
-		if (!name || !address || !phone) {
-			alert("Please fill all details");
+		if (cartItems.length === 0) {
+			alert('Cart is empty');
 			return;
 		}
 
-		if (items.length === 0) {
-			alert("Cart is empty");
-			return;
-		}
+		loading = true;
 
 		try {
-           console.log({
-	paymentMethod,
-	paymentStatus: "Unpaid"
-});
-			const docRef = await addDoc(collection(db, 'orders'), {
-				customerName: name,
+			await addDoc(collection(db, 'orders'), {
+				name,
 				phone,
 				address,
-				items,
+				items: cartItems,
 				total,
-				status: "Pending",
-				paymentMethod,
-				paymentStatus: "Unpaid",
-				createdAt: new Date(),
-				userId: auth.currentUser.uid
+				status: 'pending',
+				createdAt: serverTimestamp()
 			});
 
-			if (paymentMethod === "Razorpay") {
-				payWithRazorpay(docRef.id, total);
-			} else {
-				alert("COD Order Placed 🎉");
-			}
-
+			// clear cart
 			cart.clear();
 
-			name = "";
-			phone = "";
-			address = "";
-
+			// go to success page
+			goto('/success');
 		} catch (err) {
-			alert(err.message);
+			console.error(err);
+			alert('Order failed');
 		}
+
+		loading = false;
 	}
 </script>
 
-<div class="container py-5 text-white">
+<section class="checkout">
+	<h1>🧾 Checkout</h1>
 
-	<h2 class="mb-4">🛒 Checkout</h2>
+	<div class="grid">
+		<!-- FORM -->
+		<div class="form">
+			<input placeholder="Full Name" bind:value={name} />
+			<input placeholder="Phone Number" bind:value={phone} />
+			<textarea placeholder="Address" bind:value={address}></textarea>
 
-	<div class="row g-4">
+			<button on:click={placeOrder} disabled={loading}>
+				{loading ? 'Placing Order...' : 'Place Order'}
+			</button>
+		</div>
 
-		<div class="col-md-6">
+		<!-- SUMMARY -->
+		<div class="summary">
+			<h2>Order Summary</h2>
 
-			<div class="card p-4 checkout-card">
-
-				<h4 class="mb-3">Customer Details</h4>
-
-				<input
-					bind:value={name}
-					placeholder="Full Name"
-					class="form-control mb-3"
-				/>
-
-				<input
-					bind:value={phone}
-					placeholder="Phone Number"
-					class="form-control mb-3"
-				/>
-
-				<textarea
-					bind:value={address}
-					placeholder="Address"
-					class="form-control mb-3"
-				></textarea>
-
-				<h5 class="mb-3">💳 Payment Method</h5>
-
-				<div class="mb-3">
-
-					<label class="d-block mb-2">
-						<input
-							type="radio"
-							bind:group={paymentMethod}
-							value="COD"
-						/>
-						Cash on Delivery
-					</label>
-
-					<label class="d-block">
-						<input
-							type="radio"
-							bind:group={paymentMethod}
-							value="Razorpay"
-						/>
-						Pay Online (Razorpay)
-					</label>
-
+			{#each cartItems as item}
+				<div class="item">
+					<span>{item.name}</span>
+					<span>₹{item.price}</span>
 				</div>
+			{/each}
 
-				<button
-					class="btn btn-success w-100"
-					on:click={placeOrder}
-				>
-					Place Order
-				</button>
+			<hr />
 
-			</div>
-
+			<h3>Total: ₹{total}</h3>
 		</div>
-
-		<div class="col-md-6">
-
-			<div class="card p-4 checkout-card">
-
-				<h4>Order Summary</h4>
-
-				{#each items as item}
-
-					<div class="d-flex justify-content-between border-bottom py-2">
-
-						<span>
-							{item.name} × {item.qty}
-						</span>
-
-						<span>
-							₹{item.price * item.qty}
-						</span>
-
-					</div>
-
-				{/each}
-
-				<hr />
-
-				<h5>Total: ₹{total}</h5>
-
-				<p class="mt-2">
-					Selected Payment:
-					<strong>{paymentMethod}</strong>
-				</p>
-
-			</div>
-
-		</div>
-
 	</div>
-
-</div>
+</section>
 
 <style>
-	.checkout-card {
-		background: rgba(255,255,255,0.06);
-		backdrop-filter: blur(10px);
-		border-radius: 16px;
+	.checkout {
+		max-width: 1100px;
+		margin: 50px auto;
 		color: white;
-		border: 1px solid rgba(255,255,255,0.1);
+		padding: 20px;
 	}
 
-	.checkout-card input,
-	.checkout-card textarea {
-		background: rgba(255,255,255,0.1);
+	.grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 30px;
+	}
+
+	.form input,
+	.form textarea {
+		width: 100%;
+		padding: 12px;
+		margin-bottom: 15px;
+		border-radius: 10px;
+		border: none;
+		background: #1f2937;
+		color: white;
+	}
+
+	button {
+		width: 100%;
+		padding: 14px;
+		background: #2563eb;
 		border: none;
 		color: white;
+		font-weight: bold;
+		border-radius: 10px;
+		cursor: pointer;
 	}
 
-	.checkout-card input::placeholder,
-	.checkout-card textarea::placeholder {
-		color: #ccc;
+	.summary {
+		background: #111827;
+		padding: 20px;
+		border-radius: 15px;
 	}
 
-	.checkout-card textarea {
-		min-height: 120px;
+	.item {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 10px;
 	}
 </style>
-
